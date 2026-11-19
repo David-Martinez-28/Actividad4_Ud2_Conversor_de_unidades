@@ -1,10 +1,15 @@
 package dam.david.u2p4conversor;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -12,30 +17,63 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-
-import java.util.Locale;
+import androidx.lifecycle.ViewModelProvider;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "LogsConversor";
 
-    private TextView textViewPulgada;
-    private EditText etPulgada;
+    private Spinner spinnerConversion;
+    private ImageButton btnAyuda;
+    private TextView textViewTitulo;
+    private EditText etValor;
     private Button buttonConvertir;
-    private TextView tvResultadoPulgadaToCm;
+    private TextView tvResultado;
+    private TextView mensajeError;
 
+    private ConversorViewModel viewModel;
 
-    private TextView textViewCm;
-    private EditText etCentimetro;
-    private Button buttonConvertirCm;
-    private TextView tvResultadoCmToPulgada;
+    private final String[] opcionesConversion = {
+            "Pulgadas -> Centímetros",
+            "Centímetros -> Pulgadas",
+            "Kilómetros -> Millas",
+            "Millas -> Kilómetros",
+            "Kilogramos -> Libras",
+            "Libras -> Kilogramos"
+    };
 
-    private Button buttonOcultarBloque;
+    private final String[] titulos = {
+            "Convertir de Pulgadas a Centímetros",
+            "Convertir de Centímetros a Pulgadas",
+            "Convertir de Kilómetros a Millas",
+            "Convertir de Millas a Kilómetros",
+            "Convertir de Kilogramos a Libras",
+            "Convertir de Libras a Kilogramos"
+    };
 
-    private boolean mostrandoBloque1 = true;
+    private final String[] hintsEntrada = {
+            "Ingrese pulgadas",
+            "Ingrese centímetros",
+            "Ingrese kilómetros",
+            "Ingrese millas",
+            "Ingrese kilogramos",
+            "Ingrese libras"
+    };
+
+    private final String[] hintsResultado = {
+            "Resultado en centímetros",
+            "Resultado en pulgadas",
+            "Resultado en millas",
+            "Resultado en kilómetros",
+            "Resultado en libras",
+            "Resultado en kilogramos"
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate: Activity creada");
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
@@ -45,106 +83,131 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        viewModel = new ViewModelProvider(this).get(ConversorViewModel.class);
+
         setUI();
+        observarViewModel();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart: Activity iniciada (a punto de ser visible)");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume: Activity visible y en primer plano");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause: Activity pausada (pierde el foco)");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop: Activity detenida (ya no es visible)");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(TAG, "onRestart: Activity reiniciándose tras estar detenida");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: Activity destruida");
     }
 
     private void setUI() {
-
-
-        textViewPulgada = findViewById(R.id.textView);
-        etPulgada = findViewById(R.id.et_Pulgada);
+        spinnerConversion = findViewById(R.id.spinner_Conversion);
+        btnAyuda = findViewById(R.id.btn_Ayuda);
+        textViewTitulo = findViewById(R.id.textView);
+        etValor = findViewById(R.id.et_Pulgada);
         buttonConvertir = findViewById(R.id.button_Convertir);
-        tvResultadoPulgadaToCm = findViewById(R.id.et_Resultado);
+        tvResultado = findViewById(R.id.et_Resultado);
+        mensajeError = findViewById(R.id.textError);
 
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, opcionesConversion);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerConversion.setAdapter(adapter);
 
-        textViewCm = findViewById(R.id.textViewCm);
-        etCentimetro = findViewById(R.id.et_Centimetro);
-        buttonConvertirCm = findViewById(R.id.button_ConvertirCm);
-        tvResultadoCmToPulgada = findViewById(R.id.et_ResultadoPulgada);
-        buttonOcultarBloque = findViewById(R.id.button_OcultarBloque);
+        spinnerConversion.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                viewModel.setTipoConversionIndex(position);
+            }
 
-
-        mostrarBloqueUno();
-
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
         buttonConvertir.setOnClickListener(view -> {
+            Log.d(TAG, "Botón pulsado: buttonConvertir (" + buttonConvertir.getText() + ")");
+            String texto = etValor.getText().toString();
+            int tipo = spinnerConversion.getSelectedItemPosition();
             try {
-                String texto = etPulgada.getText().toString();
-                if (!texto.isEmpty()) {
-                    tvResultadoPulgadaToCm.setText(convertirPulgadasACm(texto));
-                } else {
-                    tvResultadoPulgadaToCm.setText("");
+                switch (tipo) {
+                    case 0:
+                        viewModel.convertirPulgadasACm(texto);
+                        break;
+                    case 1:
+                        viewModel.convertirCmAPulgadas(texto);
+                        break;
+                    case 2:
+                        viewModel.convertirKmAMillas(texto);
+                        break;
+                    case 3:
+                        viewModel.convertirMillasAKm(texto);
+                        break;
+                    case 4:
+                        viewModel.convertirKgALibras(texto);
+                        break;
+                    case 5:
+                        viewModel.convertirLibrasAKg(texto);
+                        break;
                 }
             } catch (Exception e) {
-                Log.e("LogsConversor", e.getMessage() != null ? e.getMessage() : "Error desconocido");
+                Log.e(TAG, e.getMessage() != null ? e.getMessage() : "Error desconocido");
             }
         });
 
+        btnAyuda.setOnClickListener(view -> {
+            Log.d(TAG, "Botón pulsado: btnAyuda");
+            Intent intent = new Intent(MainActivity.this, Ayuda.class);
+            startActivity(intent);
+        });
+    }
 
-        buttonConvertirCm.setOnClickListener(view -> {
-            try {
-                String texto = etCentimetro.getText().toString();
-                if (!texto.isEmpty()) {
-                    tvResultadoCmToPulgada.setText(convertirCmAPulgadas(texto));
-                } else {
-                    tvResultadoCmToPulgada.setText("");
-                }
-            } catch (Exception e) {
-                Log.e("LogsConversor", e.getMessage() != null ? e.getMessage() : "Error desconocido");
+    private void observarViewModel() {
+        viewModel.getTipoConversionIndex().observe(this, index -> {
+            if (spinnerConversion.getSelectedItemPosition() != index) {
+                spinnerConversion.setSelection(index);
             }
+            textViewTitulo.setText(titulos[index]);
+            etValor.setHint(hintsEntrada[index]);
+            tvResultado.setHint(hintsResultado[index]);
         });
 
+        viewModel.getResultadoConversion().observe(this, resultado -> {
+            tvResultado.setText(resultado);
+        });
 
-        buttonOcultarBloque.setOnClickListener(view -> {
-            if (mostrandoBloque1) {
-
-                mostrarBloqueDos();
-                mostrandoBloque1 = false;
+        viewModel.getMensajeError().observe(this, error -> {
+            if (error == null) {
+                mensajeError.setVisibility(View.GONE);
             } else {
-
-                mostrarBloqueUno();
-                mostrandoBloque1 = true;
+                mensajeError.setText(error);
+                mensajeError.setVisibility(View.VISIBLE);
             }
         });
-    }
-
-    private void mostrarBloqueUno() {
-        textViewPulgada.setVisibility(View.VISIBLE);
-        etPulgada.setVisibility(View.VISIBLE);
-        buttonConvertir.setVisibility(View.VISIBLE);
-        tvResultadoPulgadaToCm.setVisibility(View.VISIBLE);
-
-        textViewCm.setVisibility(View.GONE);
-        etCentimetro.setVisibility(View.GONE);
-        buttonConvertirCm.setVisibility(View.GONE);
-        tvResultadoCmToPulgada.setVisibility(View.GONE);
-
-        buttonOcultarBloque.setText("Cambiar a Cm -> Pulgadas");
-    }
-
-    private void mostrarBloqueDos() {
-        textViewPulgada.setVisibility(View.GONE);
-        etPulgada.setVisibility(View.GONE);
-        buttonConvertir.setVisibility(View.GONE);
-        tvResultadoPulgadaToCm.setVisibility(View.GONE);
-
-        textViewCm.setVisibility(View.VISIBLE);
-        etCentimetro.setVisibility(View.VISIBLE);
-        buttonConvertirCm.setVisibility(View.VISIBLE);
-        tvResultadoCmToPulgada.setVisibility(View.VISIBLE);
-
-        buttonOcultarBloque.setText("Cambiar a Pulgadas -> Cm");
-    }
-
-
-
-    private String convertirPulgadasACm(String pulgadaText) {
-        double pulgadaValue = Double.parseDouble(pulgadaText) * 2.54;
-        return String.format(Locale.US, "%.2f", pulgadaValue);
-    }
-
-    private String convertirCmAPulgadas(String cmText) {
-        double cmValue = Double.parseDouble(cmText) / 2.54;
-        return String.format(Locale.US, "%.2f", cmValue);
     }
 }

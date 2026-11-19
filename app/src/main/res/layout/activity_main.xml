@@ -8,39 +8,77 @@
     android:background="@drawable/metro_fondo"
     tools:context=".MainActivity">
 
-    <!-- BOTÓN SUPERIOR -->
-    <Button
-        android:id="@+id/button_OcultarBloque"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Cambiar conversor"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <ImageButton
+        android:id="@+id/btn_Ayuda"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="24dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Ayuda"
+        android:src="@android:drawable/ic_menu_help"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- BLOQUE 1: Pulgadas a Centímetros -->
+    <Spinner
+        android:id="@+id/spinner_Conversion"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="16dp"
+        android:background="?android:attr/editTextBackground"
+        app:layout_constraintEnd_toStartOf="@+id/btn_Ayuda"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textError"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text=""
+        android:textColor="#FF0000"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinner_Conversion"
+        tools:text="Sólo números >=1"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center"
         android:text="@string/textViewInfo"
         android:textColor="#0000ff"
-        android:textSize="18sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_OcultarBloque" />
+        android:textSize="17sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spinner_Conversion" />
 
     <EditText
         android:id="@+id/et_Pulgada"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="24dp"
         android:ems="10"
         android:hint="@string/textViewHintPedir"
         android:importantForAutofill="no"
@@ -48,106 +86,37 @@
         android:minHeight="48dp"
         android:textAlignment="center"
         android:textColorHint="#616161"
-        app:layout_constraintLeft_toLeftOf="@+id/textView"
-        app:layout_constraintRight_toRightOf="@+id/textView"
+        app:layout_constraintEnd_toStartOf="@+id/guideline_vertical"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <Button
         android:id="@+id/button_Convertir"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
         android:text="@string/buttonConvertir"
-        app:layout_constraintLeft_toLeftOf="@+id/et_Pulgada"
-        app:layout_constraintRight_toRightOf="@+id/et_Pulgada"
-        app:layout_constraintTop_toBottomOf="@+id/et_Pulgada" />
+        app:layout_constraintBottom_toBottomOf="@+id/textView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/guideline_vertical"
+        app:layout_constraintTop_toTopOf="@+id/textView" />
 
-    <!-- Modificado a TextView para que no sea editable -->
     <TextView
         android:id="@+id/et_Resultado"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="32dp"
         android:background="?android:attr/editTextBackground"
         android:ems="10"
+        android:gravity="center"
         android:hint="@string/editTextHintResultado"
         android:minHeight="48dp"
-        android:gravity="center"
-        android:textSize="16sp"
         android:textColor="#000000"
         android:textColorHint="#616161"
-        app:layout_constraintLeft_toLeftOf="@+id/et_Pulgada"
-        app:layout_constraintRight_toRightOf="@+id/et_Pulgada"
-        app:layout_constraintTop_toBottomOf="@+id/button_Convertir" />
-
-
-    <!-- BLOQUE 2: Centímetros a Pulgadas -->
-    <TextView
-        android:id="@+id/textViewCm"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="8dp"
-        android:text="Convertir de Centímetros a Pulgadas"
-        android:textColor="#0000ff"
-        android:textSize="18sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_Resultado" />
-
-    <EditText
-        android:id="@+id/et_Centimetro"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:ems="10"
-        android:hint="Ingrese centímetros"
-        android:importantForAutofill="no"
-        android:inputType="numberDecimal"
-        android:minHeight="48dp"
-        android:textAlignment="center"
-        android:textColorHint="#616161"
-        app:layout_constraintLeft_toLeftOf="@+id/textViewCm"
-        app:layout_constraintRight_toRightOf="@+id/textViewCm"
-        app:layout_constraintTop_toBottomOf="@+id/textViewCm" />
-
-    <Button
-        android:id="@+id/button_ConvertirCm"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:text="Convertir a Pulgadas"
-        app:layout_constraintLeft_toLeftOf="@+id/et_Centimetro"
-        app:layout_constraintRight_toRightOf="@+id/et_Centimetro"
-        app:layout_constraintTop_toBottomOf="@+id/et_Centimetro" />
-
-    <!-- Modificado a TextView para que no sea editable -->
-    <TextView
-        android:id="@+id/et_ResultadoPulgada"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="8dp"
-        android:background="?android:attr/editTextBackground"
-        android:ems="10"
-        android:hint="Resultado en pulgadas"
-        android:minHeight="48dp"
-        android:gravity="center"
         android:textSize="16sp"
-        android:textColor="#000000"
-        android:textColorHint="#616161"
-        app:layout_constraintLeft_toLeftOf="@+id/et_Centimetro"
-        app:layout_constraintRight_toRightOf="@+id/et_Centimetro"
-        app:layout_constraintTop_toBottomOf="@+id/button_ConvertirCm" />
+        app:layout_constraintBottom_toBottomOf="@+id/et_Pulgada"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/guideline_vertical"
+        app:layout_constraintTop_toTopOf="@+id/et_Pulgada" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
